@@ -42,21 +42,6 @@ export async function sendAction(
   return res.json();
 }
 
-export async function sendChat(
-  gameId: string,
-  from: { kind: string; id?: string; name?: string },
-  scope: string,
-  text: string,
-  toPlayerId?: string,
-): Promise<unknown> {
-  const res = await fetch(`${BASE}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, from, scope, toPlayerId, text }),
-  });
-  return res.json();
-}
-
 export async function resetGame(): Promise<unknown> {
   const res = await fetch(`${BASE}/api/game/reset`, { method: 'POST' });
   return res.json();

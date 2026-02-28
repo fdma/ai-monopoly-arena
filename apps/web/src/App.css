@@ -5,74 +5,110 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f0f0;
-  color: #333;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0a0a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
 }
 
 .app {
-  max-width: 1400px;
+  max-width: 1520px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 16px;
 }
 
+/* ─── Header ─────────────────────────────────── */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: #1a1a2e;
-  color: #fff;
-  border-radius: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #12122a 0%, #1a1a3e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   margin-bottom: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .app-header h1 {
-  font-size: 18px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #d4a843 0%, #f5d98a 50%, #d4a843 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
 }
 
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
 }
 
 .header-controls button {
-  padding: 4px 12px;
+  padding: 6px 16px;
   border: none;
-  border-radius: 4px;
-  background: #e94560;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #e94560 0%, #c73851 100%);
   color: #fff;
   cursor: pointer;
   font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(233, 69, 96, 0.3);
 }
 
 .header-controls button:hover {
-  background: #c73851;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+}
+
+.header-controls button:active {
+  transform: translateY(0);
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #888;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  transition: background 0.3s;
 }
 
 .status-dot.on {
   background: #2ecc71;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
 }
 
 .status-dot.off {
   background: #e74c3c;
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
 }
 
+/* ─── No Game ────────────────────────────────── */
 .no-game {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   font-size: 16px;
   color: #666;
 }
 
+.no-game p {
+  margin-bottom: 8px;
+}
+
+/* ─── Game Layout ────────────────────────────── */
 .game-layout {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -80,234 +116,270 @@ body {
   align-items: start;
 }
 
-.left-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ─── Glass Card ─────────────────────────────── */
+.glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
 }
 
-.right-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-
-/* Player Info */
-.player-info {
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.phase-label {
-  font-size: 14px;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.dice {
-  font-family: monospace;
-  color: #e74c3c;
-}
-
-.players-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.player-row {
+/* ─── Dashboard ──────────────────────────────── */
+.dash-phase {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(212, 168, 67, 0.08);
+  border: 1px solid rgba(212, 168, 67, 0.15);
+  border-radius: 8px;
+  margin-bottom: 12px;
   font-size: 13px;
 }
 
-.player-row.current {
-  background: #e8f4fd;
-  font-weight: 600;
+.dash-turn {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #d4a843;
+  white-space: nowrap;
 }
 
-.player-row.bankrupt {
-  opacity: 0.4;
-  text-decoration: line-through;
+.dash-phase-text {
+  color: #ccc;
+  flex: 1;
 }
 
-.player-dot {
+.dice-display {
+  display: flex;
+  gap: 4px;
+}
+
+.die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  color: #1a1a2e;
+  border-radius: 5px;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.die.doubles {
+  background: #e94560;
+  color: #fff;
+}
+
+/* ─── Player rows ────────────────────────────── */
+.dash-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-player {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.12);
+  transition: all 0.2s;
+}
+
+.dash-player.active {
+  background: rgba(212, 168, 67, 0.07);
+  border-color: rgba(212, 168, 67, 0.2);
+}
+
+.dash-player.bankrupt {
+  opacity: 0.3;
+}
+
+.dash-player-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.dash-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.player-name {
+.dash-name {
+  font-weight: 600;
+  font-size: 13px;
   flex: 1;
 }
 
-.player-money {
-  font-family: monospace;
-  font-weight: 600;
-  min-width: 60px;
+.dash-badge {
+  font-size: 8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dash-badge.jail {
+  background: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.dash-badge.out {
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.dash-money {
+  font-weight: 700;
+  font-size: 14px;
+  color: #2ecc71;
+  min-width: 50px;
   text-align: right;
 }
 
-.player-props {
-  color: #888;
-  font-size: 11px;
-  min-width: 50px;
-}
-
-.jail-badge,
-.bankrupt-badge {
-  font-size: 9px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-weight: 700;
-}
-
-.jail-badge {
-  background: #f39c12;
-  color: #fff;
-}
-
-.bankrupt-badge {
-  background: #e74c3c;
-  color: #fff;
-}
-
-/* Game Log */
-.game-log {
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.game-log h3 {
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.log-entries {
-  max-height: 300px;
-  overflow-y: auto;
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.log-entry {
-  padding: 1px 4px;
-  border-radius: 2px;
-}
-
-.log-entry.event-turn-started {
-  font-weight: 600;
-  margin-top: 4px;
-  color: #1a1a2e;
-}
-
-.log-entry.event-game-ended {
-  font-weight: 700;
-  color: #e94560;
-  font-size: 14px;
-}
-
-.log-entry.event-player-bankrupt {
+.dash-player.bankrupt .dash-money {
   color: #e74c3c;
+  text-decoration: line-through;
 }
 
-.log-entry.event-property-bought {
+.dash-net {
+  font-size: 10px;
+  color: #666;
+  min-width: 40px;
+}
+
+/* ─── Property chips ─────────────────────────── */
+.dash-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.dash-chip-group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  padding: 1px 2px;
+  border-radius: 4px;
+}
+
+.dash-chip-group.mono {
+  background: rgba(212, 168, 67, 0.1);
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  padding: 1px 3px;
+}
+
+.dash-chip {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: default;
+  position: relative;
+  transition: transform 0.15s;
+}
+
+.dash-chip:hover {
+  transform: scale(1.3);
+  z-index: 2;
+}
+
+.dash-chip-h {
+  font-size: 7px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.dash-chip-hotel {
+  font-size: 8px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(255, 50, 50, 0.8), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.dash-chip-rr {
+  background: #5c3d1e;
+  font-size: 6px;
+  letter-spacing: 0.3px;
+}
+
+.dash-chip-util {
+  background: #2471a3;
+  font-size: 6px;
+}
+
+.dash-mono-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d4a843;
+  box-shadow: 0 0 4px rgba(212, 168, 67, 0.6);
+}
+
+.dash-no-props {
+  font-size: 10px;
+  color: #444;
+  font-style: italic;
+}
+
+.dash-house-count {
+  font-size: 9px;
   color: #27ae60;
+  font-weight: 700;
+  margin-left: 2px;
 }
 
-/* Chat */
-.chat {
-  background: #fff;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+/* ─── Balance Chart ──────────────────────────── */
+.balance-chart {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.chat h3 {
-  font-size: 14px;
-  margin-bottom: 8px;
+.chart-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(212, 168, 67, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
 }
 
-.chat-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
+.balance-chart svg {
+  width: 100%;
+  height: auto;
 }
 
-.chat-tab {
-  padding: 3px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f9f9f9;
-  cursor: pointer;
-  font-size: 12px;
-  text-transform: capitalize;
+.chart-line {
+  transition: d 0.6s ease-in-out;
 }
 
-.chat-tab.active {
-  background: #1a1a2e;
-  color: #fff;
-  border-color: #1a1a2e;
+.chart-dot {
+  transition: cx 0.6s ease-in-out, cy 0.6s ease-in-out;
 }
 
-.chat-messages {
-  max-height: 200px;
-  overflow-y: auto;
-  font-size: 12px;
-  line-height: 1.5;
-  margin-bottom: 8px;
-  min-height: 60px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  padding: 4px;
-}
-
-.chat-msg {
-  padding: 2px 4px;
-}
-
-.chat-input {
-  display: flex;
-  gap: 4px;
-}
-
-.chat-input select {
-  font-size: 12px;
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  max-width: 120px;
-}
-
-.chat-input input {
-  flex: 1;
-  font-size: 12px;
-  padding: 4px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.chat-input button {
-  padding: 4px 12px;
-  border: none;
-  border-radius: 4px;
-  background: #1a1a2e;
-  color: #fff;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-@media (max-width: 900px) {
+/* ─── Responsive ─────────────────────────────── */
+@media (max-width: 1100px) {
   .game-layout {
     grid-template-columns: 1fr;
   }

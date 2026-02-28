@@ -7,10 +7,11 @@
  * - Otherwise pass and submit auction bids
  * - Pay jail fine if can afford
  * - Build houses when owning a monopoly and can afford
- * - Send occasional chat messages
+ * - Frequently chat with each other
  */
 
 const API = process.env.API_URL ?? 'http://localhost:3001';
+const TURN_DELAY = 800; // ms between actions — slow enough to watch
 
 interface Player {
   id: string;
@@ -67,29 +68,109 @@ async function action(gameId: string, playerId: string, act: Record<string, unkn
   return api<{ ok: boolean; error?: string }>('/api/action', { gameId, playerId, action: act });
 }
 
-async function chat(gameId: string, player: Player, text: string) {
+async function chat(gameId: string, player: Player, text: string, scope: 'public' | 'tabletalk' = 'tabletalk') {
   await api('/api/chat', {
     gameId,
     from: { kind: 'player', id: player.id, name: player.name },
-    scope: 'tabletalk',
+    scope,
     text,
   });
 }
 
-const QUIPS = [
-  'Interesting move...',
-  'I love this property!',
-  'Running low on cash...',
-  'To the moon!',
-  'Not my best turn.',
-  'Pay up!',
-  'This is fine.',
-  'Going for the monopoly!',
-  'Jail again?!',
-  'Easy money.',
-  'Time to build!',
-  'Hotel incoming!',
+// ── Chat lines per situation ──────────────────────────
+const CHAT_BUY = [
+  'This property is mine now!',
+  'Great investment!',
+  'Adding to my portfolio.',
+  'Nobody else gets this one.',
+  'Smart money moves.',
+  'This will pay off big time!',
+  'Another one for the collection.',
 ];
+
+const CHAT_PASS = [
+  'Not worth it right now.',
+  'Too expensive for me...',
+  'I\'ll pass, thanks.',
+  'Saving my cash for something better.',
+  'Nah, not interested.',
+];
+
+const CHAT_RENT = [
+  'Ouch, that hurts!',
+  'Take my money then...',
+  'Rent is too damn high!',
+  'You\'re bleeding me dry!',
+  'I\'ll remember this.',
+  'Painful...',
+];
+
+const CHAT_RENT_RECEIVED = [
+  'Pay up!',
+  'Easy money!',
+  'Ka-ching!',
+  'Thanks for stopping by!',
+  'Rent is due, friend.',
+  'My properties are printing money.',
+];
+
+const CHAT_JAIL = [
+  'Not jail again!',
+  'I\'m innocent, I swear!',
+  'This cell is getting familiar...',
+  'Visiting my second home.',
+  'Behind bars once more.',
+];
+
+const CHAT_ROLL = [
+  'Come on, lucky dice!',
+  'Let\'s see what we get...',
+  'Big roll incoming!',
+  'Feeling lucky!',
+  'Here goes nothing.',
+  'Roll the dice!',
+];
+
+const CHAT_BUILD = [
+  'Time to develop!',
+  'Construction crew incoming!',
+  'Building up the empire.',
+  'Houses make money.',
+  'Improving the neighborhood.',
+];
+
+const CHAT_GENERAL = [
+  'Good game so far!',
+  'Anyone want to make a deal?',
+  'The board is heating up.',
+  'Competition is fierce today.',
+  'This game is getting interesting...',
+  'May the best investor win!',
+  'Watch and learn, everyone.',
+  'I have a strategy...',
+  'Don\'t underestimate me.',
+  'Just warming up!',
+];
+
+const CHAT_LOW_MONEY = [
+  'Running dangerously low...',
+  'Need to be careful now.',
+  'My wallet is crying.',
+  'Tough times.',
+  'Counting every dollar.',
+];
+
+const CHAT_WINNING = [
+  'Looking good for me!',
+  'Who wants to surrender?',
+  'I like my chances.',
+  'This is my game to lose.',
+  'Empire is growing!',
+];
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]!;
+}
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
@@ -100,32 +181,27 @@ async function tryBuildHouses(gameId: string, state: GameState): Promise<number>
   const player = state.players[state.currentPlayerIndex]!;
   let built = 0;
 
-  for (const [groupName, group] of Object.entries(COLOR_GROUPS)) {
-    // Check if player owns all properties in this group
+  for (const [, group] of Object.entries(COLOR_GROUPS)) {
     const ownsAll = group.cells.every((cellIdx) => {
       const prop = state.properties.find((p) => p.cellIndex === cellIdx);
       return prop?.ownerId === player.id;
     });
     if (!ownsAll) continue;
 
-    // Build evenly: find the property with the fewest houses and build there
-    // Repeat while we can afford it and haven't maxed out
     let keepBuilding = true;
     while (keepBuilding) {
-      // Re-fetch state to get updated money and house counts
       const freshState = await getState();
       if (!freshState) break;
       const freshPlayer = freshState.players[freshState.currentPlayerIndex]!;
 
-      if (freshPlayer.money < group.houseCost + 100) break; // Keep $100 reserve
+      if (freshPlayer.money < group.houseCost + 100) break;
 
       const groupProps = group.cells.map((cellIdx) =>
         freshState.properties.find((p) => p.cellIndex === cellIdx)!,
       );
 
-      // Find property with fewest houses that isn't maxed
       const minHouses = Math.min(...groupProps.map((p) => p.houses));
-      if (minHouses >= 5) break; // All hotels
+      if (minHouses >= 5) break;
 
       const buildTarget = groupProps.find((p) => p.houses === minHouses && p.houses < 5);
       if (!buildTarget) break;
@@ -137,9 +213,7 @@ async function tryBuildHouses(gameId: string, state: GameState): Promise<number>
 
       if (result.ok) {
         built++;
-        if (built % 3 === 0) {
-          await sleep(20);
-        }
+        await sleep(300);
       } else {
         keepBuilding = false;
       }
@@ -170,6 +244,7 @@ async function main() {
 
   let turnCount = 0;
   const MAX_TURNS = 500;
+  let lastRentPayerId: string | null = null;
 
   while (turnCount < MAX_TURNS) {
     const state = await getState();
@@ -177,7 +252,10 @@ async function main() {
       console.log('\n=== GAME OVER ===');
       if (state) {
         const winner = state.players.find((p) => !p.isBankrupt);
-        if (winner) console.log(`Winner: ${winner.name}!`);
+        if (winner) {
+          console.log(`Winner: ${winner.name}!`);
+          await chat(gameId, winner, 'GG everyone! Victory is mine!', 'public');
+        }
         for (const p of state.players) {
           console.log(`  ${p.name}: $${p.money} ${p.isBankrupt ? '(BANKRUPT)' : ''}`);
         }
@@ -195,9 +273,25 @@ async function main() {
           const built = await tryBuildHouses(gameId, state);
           if (built > 0) {
             console.log(`  ${currentPlayer.name} built ${built} house(s)`);
+            await chat(gameId, currentPlayer, pick(CHAT_BUILD));
+            await sleep(TURN_DELAY);
           }
+
+          // Occasional pre-roll chat
+          if (Math.random() < 0.3) {
+            if (currentPlayer.money < 200) {
+              await chat(gameId, currentPlayer, pick(CHAT_LOW_MONEY));
+            } else if (currentPlayer.money > 1000) {
+              await chat(gameId, currentPlayer, pick(CHAT_WINNING));
+            } else {
+              await chat(gameId, currentPlayer, pick(CHAT_ROLL));
+            }
+            await sleep(TURN_DELAY);
+          }
+
           console.log(`[Turn ${state.turn}] ${currentPlayer.name} rolls...`);
           await action(gameId, currentPlayer.id, { type: 'ROLL_DICE' });
+          await sleep(TURN_DELAY);
           break;
         }
 
@@ -207,10 +301,15 @@ async function main() {
           if (shouldBuy) {
             console.log(`  ${currentPlayer.name} BUYS for $${price}`);
             await action(gameId, currentPlayer.id, { type: 'BUY' });
+            await chat(gameId, currentPlayer, pick(CHAT_BUY));
           } else {
             console.log(`  ${currentPlayer.name} PASSES on $${price}`);
             await action(gameId, currentPlayer.id, { type: 'PASS' });
+            if (Math.random() < 0.5) {
+              await chat(gameId, currentPlayer, pick(CHAT_PASS));
+            }
           }
+          await sleep(TURN_DELAY);
           break;
         }
 
@@ -224,10 +323,14 @@ async function main() {
           bids[currentPlayer.id] = 0;
           console.log(`  Auction bids submitted`);
           await action(gameId, currentPlayer.id, { type: 'SUBMIT_AUCTION_BIDS', bids });
+          await sleep(TURN_DELAY);
           break;
         }
 
         case 'awaiting_jail_decision': {
+          await chat(gameId, currentPlayer, pick(CHAT_JAIL));
+          await sleep(TURN_DELAY);
+
           if (currentPlayer.money >= 50) {
             console.log(`  ${currentPlayer.name} pays jail fine`);
             await action(gameId, currentPlayer.id, { type: 'PAY_JAIL_FINE' });
@@ -235,24 +338,46 @@ async function main() {
             console.log(`  ${currentPlayer.name} tries to roll doubles`);
             await action(gameId, currentPlayer.id, { type: 'ROLL_JAIL_DOUBLES' });
           }
+          await sleep(TURN_DELAY);
           break;
         }
 
         case 'turn_end': {
+          // Check if rent was paid this turn — react
+          const freshState = await getState();
+          if (freshState) {
+            // Look for rent payer via money changes
+            for (const p of freshState.players) {
+              if (p.id !== currentPlayer.id && !p.isBankrupt) {
+                // The owner might want to gloat
+                const ownedProps = freshState.properties.filter((pr) => pr.ownerId === p.id);
+                if (ownedProps.length > 0 && lastRentPayerId === currentPlayer.id && Math.random() < 0.4) {
+                  await chat(gameId, p, pick(CHAT_RENT_RECEIVED));
+                  await sleep(TURN_DELAY);
+                  break;
+                }
+              }
+            }
+          }
+
           // Try building houses before ending turn
           const built = await tryBuildHouses(gameId, state);
           if (built > 0) {
             console.log(`  ${currentPlayer.name} built ${built} house(s)`);
+            await chat(gameId, currentPlayer, pick(CHAT_BUILD));
+            await sleep(TURN_DELAY);
+          }
+
+          // General chit-chat
+          if (Math.random() < 0.2) {
+            await chat(gameId, currentPlayer, pick(CHAT_GENERAL));
+            await sleep(TURN_DELAY);
           }
 
           await action(gameId, currentPlayer.id, { type: 'END_TURN' });
           turnCount++;
-
-          // Occasional chat
-          if (turnCount % 5 === 0) {
-            const quip = QUIPS[turnCount % QUIPS.length]!;
-            await chat(gameId, currentPlayer, quip);
-          }
+          lastRentPayerId = null;
+          await sleep(TURN_DELAY / 2);
           break;
         }
 
@@ -275,8 +400,6 @@ async function main() {
       console.error(`Error:`, err);
       return;
     }
-
-    await sleep(30);
   }
 
   if (turnCount >= MAX_TURNS) {

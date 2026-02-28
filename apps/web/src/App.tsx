@@ -1,8 +1,6 @@
 import { useGameStream } from './hooks/useGameStream';
 import { Board } from './components/Board';
-import { PlayerInfo } from './components/PlayerInfo';
-import { GameLog } from './components/GameLog';
-import { Chat } from './components/Chat';
+import { Dashboard } from './components/Dashboard';
 import { createGame, startGame, resetGame } from './api';
 
 export function App() {
@@ -28,8 +26,10 @@ export function App() {
       <header className="app-header">
         <h1>AI Monopoly Arena</h1>
         <div className="header-controls">
-          <span className={`status-dot ${connected ? 'on' : 'off'}`} />
-          <span>{connected ? 'Connected' : 'Disconnected'}</span>
+          <div className="connection-status">
+            <span className={`status-dot ${connected ? 'on' : 'off'}`} />
+            <span>{connected ? 'Live' : 'Offline'}</span>
+          </div>
           {!state && <button onClick={handleNew}>New Game</button>}
           {state?.status === 'waiting' && <button onClick={handleStart}>Start Game</button>}
           {state && <button onClick={handleReset}>Reset</button>}
@@ -38,18 +38,13 @@ export function App() {
 
       {!state ? (
         <div className="no-game">
-          <p>No game in progress. Click "New Game" to create one.</p>
+          <p>No game in progress.</p>
+          <p>Click "New Game" to create one.</p>
         </div>
       ) : (
         <div className="game-layout">
-          <div className="left-panel">
-            <PlayerInfo state={state} />
-            <Board state={state} />
-          </div>
-          <div className="right-panel">
-            <GameLog events={events} />
-            <Chat events={events} state={state} />
-          </div>
+          <Board state={state} events={events} />
+          <Dashboard state={state} />
         </div>
       )}
     </div>

@@ -1,10 +1,25 @@
+/* ─── Board wrapper (for overlay positioning) ── */
+.board-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* ─── Board container ────────────────────────── */
 .board {
   display: inline-grid;
   grid-template-rows: repeat(11, 1fr);
-  border: 2px solid #333;
-  background: #c8e6c0;
-  width: min(90vw, 660px);
-  height: min(90vw, 660px);
+  border: 4px solid #1a1a2e;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(30, 130, 70, 0.3) 0%, transparent 70%),
+    linear-gradient(135deg, #166b3a 0%, #1d8045 25%, #18753e 50%, #1a6b3a 75%, #15603a 100%);
+  width: min(90vw, 740px);
+  height: min(90vw, 740px);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 0 80px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
 }
 
 .board-row {
@@ -12,10 +27,11 @@
   grid-template-columns: repeat(11, 1fr);
 }
 
+/* ─── Base cell ──────────────────────────────── */
 .board-cell {
   position: relative;
-  border: 1px solid #999;
-  background: #d5eacd;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(230, 240, 225, 0.93);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,10 +39,13 @@
   padding: 1px;
   overflow: hidden;
   min-height: 0;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
-.board-cell.corner {
-  background: #eee;
+.board-cell:hover {
+  background: rgba(245, 252, 240, 0.98);
+  z-index: 2;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.08);
 }
 
 .board-cell.empty {
@@ -34,6 +53,7 @@
   background: transparent;
 }
 
+/* ─── Inner / center ─────────────────────────── */
 .board-inner {
   border: none;
   background: transparent;
@@ -41,74 +61,523 @@
 
 .board-center {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 10px;
-  color: #666;
-  letter-spacing: 2px;
+  gap: 1px;
 }
 
+.center-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 4px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  text-transform: uppercase;
+}
+
+.center-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 6px;
+  color: rgba(212, 168, 67, 0.8);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ─── Corner cells ───────────────────────────── */
+.board-cell.corner {
+  background: rgba(240, 238, 232, 0.96);
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+.board-cell.corner:hover {
+  background: rgba(248, 246, 240, 0.98);
+}
+
+/* GO */
+.board-cell.cell-type-go {
+  background: linear-gradient(135deg, rgba(220, 245, 220, 0.95) 0%, rgba(200, 235, 200, 0.95) 100%);
+}
+
+/* Jail */
+.board-cell.cell-type-jail {
+  background: linear-gradient(135deg, rgba(220, 220, 230, 0.95) 0%, rgba(200, 200, 215, 0.95) 100%);
+}
+
+/* Free Parking */
+.board-cell.cell-type-free_parking {
+  background: linear-gradient(135deg, rgba(225, 235, 245, 0.95) 0%, rgba(210, 225, 240, 0.95) 100%);
+}
+
+/* Go To Jail */
+.board-cell.cell-type-go_to_jail {
+  background: linear-gradient(135deg, rgba(245, 220, 220, 0.95) 0%, rgba(235, 200, 200, 0.95) 100%);
+}
+
+/* ─── Railroad cells ─────────────────────────── */
+.board-cell.cell-type-railroad {
+  background: linear-gradient(135deg, rgba(235, 228, 218, 0.95) 0%, rgba(225, 218, 205, 0.95) 100%);
+  border-color: rgba(100, 80, 60, 0.2);
+}
+
+.board-cell.cell-type-railroad:hover {
+  background: rgba(242, 235, 225, 0.98);
+}
+
+/* ─── Utility cells ──────────────────────────── */
+.board-cell.cell-type-utility {
+  background: linear-gradient(135deg, rgba(225, 238, 248, 0.95) 0%, rgba(215, 230, 245, 0.95) 100%);
+  border-color: rgba(60, 100, 140, 0.2);
+}
+
+.board-cell.cell-type-utility:hover {
+  background: rgba(235, 245, 252, 0.98);
+}
+
+/* ─── Tax cells ──────────────────────────────── */
+.board-cell.cell-type-tax {
+  background: linear-gradient(135deg, rgba(248, 228, 228, 0.95) 0%, rgba(242, 218, 218, 0.95) 100%);
+  border-color: rgba(180, 60, 60, 0.15);
+}
+
+.board-cell.cell-type-tax:hover {
+  background: rgba(252, 238, 238, 0.98);
+}
+
+/* ─── Chance cells ───────────────────────────── */
+.board-cell.cell-type-chance {
+  background: linear-gradient(135deg, rgba(255, 243, 220, 0.95) 0%, rgba(250, 235, 205, 0.95) 100%);
+  border-color: rgba(200, 150, 50, 0.2);
+}
+
+.board-cell.cell-type-chance:hover {
+  background: rgba(255, 248, 232, 0.98);
+}
+
+/* ─── Community Chest cells ──────────────────── */
+.board-cell.cell-type-community_chest {
+  background: linear-gradient(135deg, rgba(220, 235, 248, 0.95) 0%, rgba(208, 228, 245, 0.95) 100%);
+  border-color: rgba(50, 100, 180, 0.15);
+}
+
+.board-cell.cell-type-community_chest:hover {
+  background: rgba(232, 242, 252, 0.98);
+}
+
+/* ─── SVG icon (non-property cells) ──────────── */
+.cell-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+/* ─── Color strip (property groups) ──────────── */
 .color-strip {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 5px;
+  height: 7px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
+/* ─── Houses / Hotel ─────────────────────────── */
 .houses {
   position: absolute;
-  top: 5px;
-  left: 1px;
-  font-size: 5px;
-  color: #27ae60;
-  font-weight: 900;
+  top: 8px;
+  left: 2px;
+  display: flex;
+  gap: 1px;
+  align-items: center;
   line-height: 1;
-  letter-spacing: -1px;
+}
+
+.house-dot {
+  display: inline-block;
+  width: 4px;
+  height: 5px;
+  background: #1a8a1a;
+  border-radius: 1px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
 }
 
 .houses.hotel {
-  color: #e74c3c;
-  font-size: 6px;
+  color: #cc2020;
+  font-size: 7px;
   font-weight: 900;
+  text-shadow: 0 0 3px rgba(204, 32, 32, 0.5);
 }
 
+/* ─── Cell text ──────────────────────────────── */
 .cell-name {
-  font-size: 6px;
+  font-size: 7px;
   text-align: center;
-  line-height: 1.1;
-  margin-top: 4px;
-  font-weight: 500;
+  line-height: 1.15;
+  margin-top: 5px;
+  font-weight: 600;
   word-break: break-word;
+  color: #2a2a2a;
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .cell-price {
-  font-size: 5px;
-  color: #666;
+  font-size: 6px;
+  color: #555;
+  font-weight: 600;
 }
 
+.tax-price {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+/* ─── Owner marker ───────────────────────────── */
 .owner-marker {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: 1px solid #fff;
-}
-
-.tokens {
-  display: flex;
-  gap: 1px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 1px;
-}
-
-.token {
+  bottom: 2px;
+  right: 2px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  border: 1px solid #333;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Token overlay ─────────────────────────── */
+.token-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.token-piece {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: default;
+  z-index: 51;
+}
+
+.token-piece:hover {
+  transform: translate(-50%, -50%) scale(1.25);
+  z-index: 55;
+}
+
+.token-initials {
+  font-size: 8px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.token-moving {
+  animation: token-land 0.3s ease-out 0.5s;
+}
+
+@keyframes token-land {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -60%) scale(1.3); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ─── Money popups ──────────────────────────── */
+.money-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 80;
+}
+
+.money-popup {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: money-float 2.2s ease-out forwards;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.money-gain {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.15);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.money-loss {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+@keyframes money-float {
+  0% {
+    opacity: 1;
+    margin-top: -14px;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    margin-top: -50px;
+  }
+}
+
+/* ─── Bubble overlay ─────────────────────────── */
+.bubble-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ─── Speech bubbles ─────────────────────────── */
+.speech-bubble {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+  background: rgba(20, 20, 40, 0.95);
+  color: #eee;
+  border-radius: 8px;
+  padding: 5px 9px;
+  min-width: 80px;
+  max-width: 180px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  animation: bubble-in 0.3s ease-out;
+  white-space: normal;
+  border: 1px solid rgba(212, 168, 67, 0.25);
+}
+
+.speech-bubble-name {
+  font-size: 7px;
+  font-weight: 700;
+  color: #d4a843;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.speech-bubble-text {
+  font-size: 10px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.speech-bubble-tail {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(20, 20, 40, 0.95);
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1);
+  }
+}
+
+/* ─── Dice roll overlay ──────────────────────── */
+.dice-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dice-roll-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: dice-container-in 0.4s ease-out;
+}
+
+.dice-roller-badge {
+  padding: 4px 14px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.dice-roller-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.dice-roll-container {
+  display: flex;
+  gap: 18px;
+}
+
+.dice-roll-die {
+  animation: dice-tumble 0.5s ease-out;
+}
+
+.dice-roll-die.die-2 {
+  animation-delay: 0.08s;
+}
+
+.dice-face {
+  width: 66px;
+  height: 66px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.dice-face.dice-doubles {
+  background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+  box-shadow:
+    0 6px 20px rgba(233, 69, 96, 0.4),
+    0 0 20px rgba(233, 69, 96, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.dice-dots {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  gap: 2px;
+}
+
+.dice-dot {
+  width: 10px;
+  height: 10px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.dice-doubles .dice-dot {
+  background: #c0392b;
+}
+
+/* Dot layouts for each value */
+.dice-val-1 {
+  grid-template: 1fr / 1fr;
+  place-items: center;
+}
+
+.dice-val-2 {
+  grid-template: 1fr 1fr / 1fr;
+  justify-items: center;
+}
+.dice-val-2 .dice-dot:first-child { justify-self: end; align-self: start; }
+.dice-val-2 .dice-dot:last-child { justify-self: start; align-self: end; }
+
+.dice-val-3 {
+  grid-template: 1fr 1fr 1fr / 1fr;
+  justify-items: center;
+}
+.dice-val-3 .dice-dot:nth-child(1) { justify-self: end; align-self: start; }
+.dice-val-3 .dice-dot:nth-child(2) { justify-self: center; align-self: center; }
+.dice-val-3 .dice-dot:nth-child(3) { justify-self: start; align-self: end; }
+
+.dice-val-4 {
+  grid-template: 1fr 1fr / 1fr 1fr;
+  place-items: center;
+}
+
+.dice-val-5 {
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+  place-items: center;
+}
+.dice-val-5 .dice-dot:nth-child(1) { grid-area: 1 / 1; }
+.dice-val-5 .dice-dot:nth-child(2) { grid-area: 1 / 3; }
+.dice-val-5 .dice-dot:nth-child(3) { grid-area: 2 / 2; }
+.dice-val-5 .dice-dot:nth-child(4) { grid-area: 3 / 1; }
+.dice-val-5 .dice-dot:nth-child(5) { grid-area: 3 / 3; }
+
+.dice-val-6 {
+  grid-template: 1fr 1fr 1fr / 1fr 1fr;
+  place-items: center;
+}
+
+@keyframes dice-tumble {
+  0% {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.3) translateY(-40px);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(15deg) scale(1.15) translateY(5px);
+  }
+  70% {
+    transform: rotate(-5deg) scale(0.95) translateY(-2px);
+  }
+  100% {
+    transform: rotate(0deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes dice-container-in {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
 }
