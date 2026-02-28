@@ -1,0 +1,20 @@
+{
+  "name": "ai-monopoly-arena",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"pnpm --filter @monopoly/server dev\" \"pnpm --filter @monopoly/web dev\"",
+    "build": "pnpm --filter @monopoly/shared build && pnpm --filter @monopoly/server build && pnpm --filter @monopoly/web build",
+    "start": "node apps/server/dist/index.js",
+    "test": "pnpm --filter @monopoly/server test",
+    "dealer": "tsx scripts/demoDealer.ts",
+    "reset": "rm -f data/state.json data/events.jsonl && echo 'Game reset.'"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,114 @@
+.board {
+  display: inline-grid;
+  grid-template-rows: repeat(11, 1fr);
+  border: 2px solid #333;
+  background: #c8e6c0;
+  width: min(90vw, 660px);
+  height: min(90vw, 660px);
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+}
+
+.board-cell {
+  position: relative;
+  border: 1px solid #999;
+  background: #d5eacd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.board-cell.corner {
+  background: #eee;
+}
+
+.board-cell.empty {
+  border: none;
+  background: transparent;
+}
+
+.board-inner {
+  border: none;
+  background: transparent;
+}
+
+.board-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 10px;
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.color-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.houses {
+  position: absolute;
+  top: 5px;
+  left: 1px;
+  font-size: 5px;
+  color: #27ae60;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.houses.hotel {
+  color: #e74c3c;
+  font-size: 6px;
+  font-weight: 900;
+}
+
+.cell-name {
+  font-size: 6px;
+  text-align: center;
+  line-height: 1.1;
+  margin-top: 4px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.cell-price {
+  font-size: 5px;
+  color: #666;
+}
+
+.owner-marker {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+}
+
+.tokens {
+  display: flex;
+  gap: 1px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.token {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid #333;
+}
